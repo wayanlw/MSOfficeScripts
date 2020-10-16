@@ -2,7 +2,7 @@
 
 The files in this repo contains MS Office scripts that I have developped over time to improve my efficiency in working with the MS Office suite. 
 
-## how to use the Excel Scripts
+## How to use the Excel Scripts
 
 1. Open the visual basic editor by pressing Alt + F11
 2. In the project window, expand the Personal.xlsx file
