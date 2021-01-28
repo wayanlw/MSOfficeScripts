@@ -430,7 +430,7 @@ End Sub
 '################################################################################################################################
 '################################################# Insert sheet with names ####################################################
 '################################################################################################################################
-Sub Sht_insertwithName_F()
+Sub Sht_insertwithName_I()
 
     Dim NewSheet As Worksheet
     Dim sheetname As String
@@ -450,10 +450,21 @@ Sub Sht_insertwithName_F()
     '64  An array of values
 
     'Handle If User Cancels
-    If sheetname = "" Then Exit Sub
+    If sheetname = "" Then ' if user doesnt enter anything exit sub
+        Exit Sub
+    ElseIf sheetname = "False" Then ' if user cancels exit sub
+        Exit Sub
+    End If
 
-    Set NewSheet = Sheets.Add(After:=ActiveSheet)
-    NewSheet.Name = sheetname
+    ' check if a sheet exists by that name and if not create sheet
+    If Fnc_Sheet_Exists(sheetname) = False Then
+        Set NewSheet = Sheets.Add(After:=ActiveSheet)
+        NewSheet.Name = sheetname
+        Fnc_NoGridZoon (NewSheet.Name)
+    Else
+        MsgBox ("Sheetname already exists")
+    End If
+
 
 
 End Sub
@@ -807,7 +818,7 @@ End Sub
 
 '--------------------------------------------------------
 
-Sub Fmt_CycleFontColor_C()
+Sub Fmt_CycleFontColor_F()
 
     '    Cycle through different font colors
     '
@@ -1472,6 +1483,14 @@ Sub Tool_WorkBook_Backup()
     Dim FileNameArray() As String
     Dim Comment     As String
 
+
+    ' to check whether the workbook is saved at least once. if a workbook is not saved at least once (ie. book1, book2 etc) it will not have a path.
+    If ActiveWorkbook.Path = "" Then
+    MsgBox "The workbook is not saved"
+    Exit Sub
+    End If
+
+
     'Step 1: Check whether the user wants to create a comment in file name
     Comment = InputBox("Insert the comment", 1)
 
@@ -1487,6 +1506,8 @@ Sub Tool_WorkBook_Backup()
     FileNameArray = Split(ThisWorkbook.Name, ".")
     Debug.Print FileNameArray(0)
     Debug.Print FileNameArray(1)
+
+    If ThisWorkbook.Name = "Personal.xlsb" Then Exit Sub
 
     ' Save a copy
     ThisWorkbook.SaveCopyAs _
