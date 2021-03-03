@@ -1,3 +1,4 @@
+Attribute VB_Name = "AllMacro"
 
 
 ' Reset Used Range
@@ -43,36 +44,32 @@ Sub sht_FullCleansheets_Option()
     Dim cursheet As Worksheet
     Set cursheet = ActiveSheet
     Set curcell = ActiveCell
-
-
+    
+    
     PropertyOption = Application.InputBox("Clean current sheet or all sheets" & _
                      "(Must be 1, 2)" & vbCr & vbCr & "   [1] Current Sheet" & vbCr & _
                      "   [2] All worksheets" & vbCr & " ", Type:=1, Title:="Scope of Clean up")
-
+    
     ' Change default style
-
-
+    
+    
     'Handle If User Cancels
     If PropertyOption = 0 Then Exit Sub
-
+    
     If PropertyOption = 1 Then
         'if the user selcted current sheet only
-
         If (ActiveSheet.AutoFilterMode And ActiveSheet.FilterMode) Or ActiveSheet.FilterMode Then
             ActiveSheet.ShowAllData
         End If
-
-
+        
         With ActiveSheet
-
-
             'Remove gridlines, set zoom to 80%, go to A1
             ActiveWindow.DisplayGridlines = False
             ActiveWindow.Zoom = 80
             Application.GoTo Reference:=Range("a1"), Scroll:=True
             'expand outlines
             .Outline.ShowLevels RowLevels:=8, ColumnLevels:=8
-
+            
             With .UsedRange
                 'Unhide and autofit rows and columns
                 .EntireColumn.AutoFit
@@ -86,33 +83,33 @@ Sub sht_FullCleansheets_Option()
                     .Size = 11
                 End With
             End With
-
+            
         End With
-
+        
     ElseIf PropertyOption = 2 Then
         'if the user selected all sheets
         With ActiveWorkbook
             .Styles("Normal").Font.Name = "Calibri"
             .Styles("Normal").Font.Size = 11
         End With
-
+        
         For Each ws In ActiveWorkbook.Worksheets
             ws.Activate
             'Remove gridlines, set zoom to 80%, go to A1
             ActiveWindow.DisplayGridlines = False
             ActiveWindow.Zoom = 80
             Application.GoTo Reference:=Range("a1"), Scroll:=True
-
+            
             If (ActiveSheet.AutoFilterMode And ActiveSheet.FilterMode) Or ActiveSheet.FilterMode Then
                 ActiveSheet.ShowAllData
             End If
-
+            
             With ws
-
+                
                 'unhide all sheets and expand outlines
                 .Visible = xlSheetVisible
                 .Outline.ShowLevels RowLevels:=8, ColumnLevels:=8
-
+                
                 With .UsedRange
                     'autofit rows and columns
                     .EntireColumn.AutoFit
@@ -128,17 +125,15 @@ Sub sht_FullCleansheets_Option()
                     End With
                 End With
             End With
-
+            
         Next ws
-
+        
         cursheet.Activate
         curcell.Activate
-
     Else
         Exit Sub
-
     End If
-
+    
 End Sub
 
 
@@ -160,7 +155,7 @@ Sub Sht_ResetUsedRange()
     'Helps to reset the usedrange by deleting rows and columns AFTER your true used range
 
     curUR = ActiveSheet.UsedRange.Address
-
+    
     'Check for merged cells
     AnyMerged = ActiveSheet.UsedRange.MergeCells
     If AnyMerged = True Or IsNull(AnyMerged) Then
@@ -168,7 +163,7 @@ Sub Sht_ResetUsedRange()
                "The macro will not work with merged cells.", vbOKOnly + vbCritical, "Macro will be Stopped"
         Exit Sub
     End If
-
+    
     With ActiveSheet
         myLastRow = 0
         myLastCol = 0
@@ -185,7 +180,7 @@ Sub Sht_ResetUsedRange()
                     searchdirection:=xlPrevious, _
                     SearchOrder:=xlByColumns).Column
         On Error GoTo 0
-
+        
         If myLastRow * myLastCol = 0 Then
             .Columns.Delete
         Else
@@ -195,10 +190,9 @@ Sub Sht_ResetUsedRange()
                                     .Cells(1, .Columns.count)).EntireColumn.Delete
         End If
     End With
-
+    
     MsgBox (curUR & " changed to " & ActiveSheet.UsedRange.Address)
-
-
+        
 End Sub
 
 
@@ -217,25 +211,25 @@ Sub Tool_FindSelectAndHighlightAllCells()
     Dim LastCell As Range
 
     Application.ScreenUpdating = False
-
+    
     'What value do you want to find?
     fnd = InputBox("I want to hightlight cells containing...", "Highlight")
-
+    
     'Select the search range based on whether there is a selection or not
     If Selection.Cells.count > 1 Then
         Set search_within = Selection
     Else
         Set search_within = ActiveSheet.UsedRange
-
+        
     End If
-
+    
     Set LastCell = search_within.Cells(search_within.Cells.count)
-
-
+    
+    
     With ActiveSheet
         'find first cell that contains "rec"
         Set c = search_within.Find(What:=fnd, After:=LastCell)
-
+        
         'if the search returns a cell
         If Not c Is Nothing Then
             'note the address of first cell found
@@ -251,23 +245,23 @@ Sub Tool_FindSelectAndHighlightAllCells()
                 'find the next instance of "rec"
                 Set c = search_within.FindNext(c)
             Loop While Not c Is Nothing And firstaddress <> c.Address
-
+            
             'after entire sheet nsearched, select all found cells
             FoundCells.Select
             FoundCells.Interior.Color = RGB(255, 255, 0)
             Application.ScreenUpdating = True
-
+            
             c.Activate
         Else
             'if no cells were found in search, display msg
             Application.ScreenUpdating = True
             MsgBox "No cells found."
-
+            
         End If
     End With
-
-
-
+    
+    
+    
 End Sub
 
 
@@ -284,7 +278,6 @@ Sub Tool_DuplicatesHighlight()
         If WorksheetFunction.CountIf(Selection, cell.Value) > 1 Then
             cell.Interior.ColorIndex = 6
         End If
-
     Next cell
 End Sub
 
@@ -302,12 +295,12 @@ Sub Tool_DuplicatesRemove()
 
     'Optimize code execution speed
     Application.ScreenUpdating = False
-
+    
     'Determine range to look at from user's selection
     On Error GoTo InvalidSelection
     Set rng = Selection
     On Error GoTo 0
-
+    
     'Determine if multiple columns have been selected
     If rng.Columns.count > 1 Then
         On Error GoTo InputCancel
@@ -317,25 +310,25 @@ Sub Tool_DuplicatesRemove()
     Else
         x = 1
     End If
-
+    
     'Optimize code execution speed
     Application.Calculation = xlCalculationManual
-
+    
     'Remove entire row
     rng.RemoveDuplicates Columns:=x
-
+    
     'Change calculation setting to Automatic
     Application.Calculation = xlCalculationAutomatic
     Application.ScreenUpdating = True
     Exit Sub
-
+    
     'ERROR HANDLING
 InvalidSelection:
     MsgBox "You selection is not valid", vbInformation
     Exit Sub
-
+    
 InputCancel:
-
+    
 End Sub
 
 
@@ -357,19 +350,19 @@ Sub Tool_CleanTrimCells_Evaluate()
     Else
         Application.ReferenceStyle = xlA1
     End If
-
+    
     'Weed out any formulas from selection
     If Selection.Cells.count = 1 Then
         Set rng = Selection
     Else
         Set rng = Selection.SpecialCells(xlCellTypeConstants)
     End If
-
+    
     'Trim and Clean cell values
     For Each Area In rng.Areas
         Area.Value = Evaluate("IF(ROW(" & Area.Address & "),CLEAN(TRIM(" & Area.Address & ")))")
     Next Area
-
+    
 End Sub
 
 
@@ -390,19 +383,19 @@ Sub Fnc_AskToSave()
     'Ask user if he wants to save before executing
     If ThisWorkbook.Saved = False Then
         UserAnswer = MsgBox("Would you like to save before running?", vbYesNoCancel, "Save?")
-
+        
         If UserAnswer = vbCancel Then Exit Sub    'User clicked cancel button
-
+        
         If UserAnswer = vbYes Then
             If ThisWorkbook.Path <> "" Then
                 'Need to SaveAs
                 SaveAsChoice = Application.FileDialog(msoFileDialogSaveAs).Show
                 If SaveAsChoice <> 0 Then
                     SavePath = Application.FileDialog(msoFileDialogSaveAs).SelectedItems(1)
-
+                    
                     'Determine File Extension Number for SaveAs
                     FileExt = Right(SavePath, Len(SavePath) - InStrRev(SavePath, "."))
-
+                    
                     'Get File Format Number (based off of extension)
                     Select Case FileExt
                         Case "xlsx": ExtNumber = 51
@@ -410,7 +403,7 @@ Sub Fnc_AskToSave()
                         Case "xlsb": ExtNumber = 50
                         Case "xls": ExtNumber = 56
                     End Select
-
+                    
                     ThisWorkbook.SaveAs SavePath, ExtNumber
                 Else
                     Exit Sub                      'User clicked cancel button
@@ -420,9 +413,9 @@ Sub Fnc_AskToSave()
             End If
         End If
     End If
-
+    
     'Insert the rest of you code here...
-
+    
 End Sub
 
 
@@ -438,8 +431,8 @@ Sub Sht_insertwithName_I()
 
     sheetname = Application.InputBox("Insert the name of the new Sheet" & _
                 vbCr & " ", Type:=2, Title:="Insert New Sheet")
-
-
+    
+    
     'The Inputbox types and their input types
     '0   A Formula
     '1   A Number
@@ -448,14 +441,14 @@ Sub Sht_insertwithName_I()
     '8   A cell reference, as a Range object
     '16  An error value, such as #N/A
     '64  An array of values
-
+    
     'Handle If User Cancels
-    If sheetname = "" Then ' if user doesnt enter anything exit sub
+    If sheetname = "" Then                        ' if user doesnt enter anything exit sub
         Exit Sub
-    ElseIf sheetname = "False" Then ' if user cancels exit sub
+    ElseIf sheetname = "False" Then               ' if user cancels exit sub
         Exit Sub
     End If
-
+    
     ' check if a sheet exists by that name and if not create sheet
     If Fnc_Sheet_Exists(sheetname) = False Then
         Set NewSheet = Sheets.Add(After:=ActiveSheet)
@@ -464,9 +457,9 @@ Sub Sht_insertwithName_I()
     Else
         MsgBox ("Sheetname already exists")
     End If
-
-
-
+    
+    
+    
 End Sub
 
 
@@ -487,16 +480,16 @@ Sub Sht_CreateSheetsFromSelectedRange()
     Dim cursheet As Worksheet
 
     Set cursheet = ActiveSheet
-
+    
     'Opitimize Code
     Application.ScreenUpdating = False
-
+    
     If TypeName(Selection) <> "Range" Then
         MsgBox "Please select a range first.", vbOKOnly, "List Unique Values Macro"
         Exit Sub
     End If
-
-
+    
+    
     'Create a new worksheet for every name inside the table
     For Each cell In Selection
         If Sht_Fnc_SheetExists(cell.Value) = False And cell.Value <> "" Then
@@ -504,13 +497,13 @@ Sub Sht_CreateSheetsFromSelectedRange()
             NewSheet.Name = cell.Value
         End If
     Next cell
-
+    
     cursheet.Activate
-
-
+    
+    
     'Opitimize Code
     Application.ScreenUpdating = True
-
+    
 End Sub
 
 
@@ -548,20 +541,20 @@ Sub Shape_ResizeMoveProperty()
     "(Must be 1, 2, or 3)" & vbCr & vbCr & "   [1] Move and Size with Cells" & vbCr & _
     "   [2] Move but Don't Size with Cells" & vbCr & "   [3] Don't Move or Size with Cells" & _
     vbCr & " ", Type:=1, Title:="Placement Property For All")
-
+    
     'Handle If User Cancels
     If PropertyOption = 0 Then Exit Sub
-
+    
     'Loop Through Shapes & Controls
     For Each shp In ActiveSheet.Shapes
         shp.Placement = PropertyOption
     Next shp
-
+    
     'Loop Through Charts
     For Each cht In ActiveSheet.ChartObjects
         cht.Placement = PropertyOption
     Next cht
-
+    
 End Sub
 
 
@@ -581,38 +574,38 @@ Sub Shape_ResizeMoveProperty_Cycle()
         PropertyOption = Choose(shp.Placement, 2, 3, 1)
         GoTo PlacementChoosen
     Next shp
-
+    
     For Each cht In ActiveSheet.ChartObjects
         PropertyOption = Choose(cht.Placement, 2, 3, 1)
         GoTo PlacementChoosen
     Next cht
-
+    
     'Nothing Found
     MsgBox "No objects were found to adjust the placement property"
     Exit Sub
-
+    
 PlacementChoosen:
-
+    
     'Handle If User Cancels
     If PropertyOption = 0 Then Exit Sub
-
+    
     'Loop Through Shapes & Controls
     For Each shp In ActiveSheet.Shapes
         shp.Placement = PropertyOption
     Next shp
-
+    
     'Loop Through Charts
     For Each cht In ActiveSheet.ChartObjects
         cht.Placement = PropertyOption
     Next cht
-
+    
     'Report action taken to user
     Select Case PropertyOption
         Case 1: MsgBox "All Charts & Shapes set to: " & Chr(34) & "Move and Size with Cells" & Chr(34)
         Case 2: MsgBox "All Charts & Shapes set to: " & Chr(34) & "Move but Don't Size with Cells" & Chr(34)
         Case 3: MsgBox "All Charts & Shapes set to: " & Chr(34) & "Don't Move or Size with Cells" & Chr(34)
     End Select
-
+    
 End Sub
 
 
@@ -629,16 +622,16 @@ Sub Tool_Load2RecentColors()
     Dim CurrentFill As Variant
 
     Application.ScreenUpdating = False
-
+    
     'Array List of RGB Color Codes to Add To Recent Colors Section (Max 10)
     ColorList = Array("000,168,168", "052,024,082", "001,180,184", "119,094,136")
-
+    
     'Store ActiveCell's Fill Color (if applicable)
     If ActiveCell.Interior.ColorIndex <> xlNone Then CurrentFill = ActiveCell.Interior.Color
-
+    
     'Optimize Code
     Application.ScreenUpdating = False
-
+    
     'Loop Through List Of RGB Codes And Add To Recent Colors
     For x = LBound(ColorList) To UBound(ColorList)
         ActiveCell.Interior.Color = RGB(Left(ColorList(x), 3), Mid(ColorList(x), 5, 3), Right(ColorList(x), 3))
@@ -646,18 +639,18 @@ Sub Tool_Load2RecentColors()
         SendKeys "%hhm~"
         DoEvents
     Next x
-
+    
     'Return ActiveCell Original Fill Color
     If CurrentFill = Empty Then
         ActiveCell.Interior.ColorIndex = xlNone
     Else
         ActiveCell.Interior.Color = CurrentFill
     End If
-
+    
     Application.ScreenUpdating = True
-
+    
     MsgBox "Colors Loaded"
-
+    
 End Sub
 
 
@@ -682,20 +675,20 @@ Sub Fmt_AutoColorSelection_A()
         Set formulaCells = .SpecialCells(xlCellTypeFormulas, 23)
         On Error GoTo 0
     End With
-
-
+    
+    
     If Not constantCell Is Nothing Then
         constantCell.Font.Color = vbBlue
     End If
-
+    
     If Not formulaCells Is Nothing Then
         For Each cell In formulaCells
             cellFormula = cell.Formula
-
+            
             If cellFormula Like "*.xls*]*!*" Then
                 cell.Font.Color = RGB(0, 176, 80)
             ElseIf cellFormula Like "*!*" Then
-
+                
                 '    And Not cellFormula Like "*\**" _
                 '    And Not cellFormula Like "*+*" _
                 '    And Not cellFormula Like "*-*" _
@@ -714,8 +707,8 @@ Sub Fmt_AutoColorSelection_A()
             End If
         Next cell
     End If
-
-
+    
+    
 End Sub
 
 '--------------------------------------------------------
@@ -731,14 +724,14 @@ Sub Fmt_NumberFormat_N()
     Else
         Selection.NumberFormat = "General"
     End If
-
+    
 End Sub
 '--------------------------------------------------------
 
 Sub Fmt_DecimalIncrease_J()
     ' Ctrol + Shift + J
     Application.CommandBars.FindControl(ID:=398).Execute
-
+    
 End Sub
 
 '--------------------------------------------------------
@@ -759,6 +752,29 @@ Sub Fmt_CenterAcrossSelection_M()
     End With
 End Sub
 
+Sub Fmt_Alignment_R()
+
+    If Selection.HorizontalAlignment = xlGeneral Then
+        Selection.HorizontalAlignment = xlRight
+    ElseIf Selection.HorizontalAlignment = xlRight Then
+        Selection.HorizontalAlignment = xlCenter
+    Else
+        Selection.HorizontalAlignment = xlGeneral
+    End If
+    
+End Sub
+
+Sub Fmt_WrapText_W()
+
+    If Selection.WrapText = True Then
+        Selection.WrapText = False
+    Else
+        Selection.WrapText = True
+    End If
+    
+End Sub
+
+
 '--------------------------------------------------------
 
 
@@ -766,7 +782,7 @@ Sub Fmt_CurrentSheetNoGridZoom70_G()
     ' Shortcut Ctrl+shift+G
     ' WorksheetGridZoom Macro
     Fnc_NoGridZoon (ActiveSheet.Name)
-
+    
 End Sub
 
 
@@ -775,8 +791,8 @@ Function Fnc_NoGridZoon(ws_name As String)
     ActiveWindow.DisplayGridlines = False
     ActiveWindow.Zoom = 80
     Application.GoTo Reference:=Range("a1"), Scroll:=True
-
-
+    
+    
 End Function
 
 '--------------------------------------------------------
@@ -790,7 +806,7 @@ Sub Fmt_AllSheetsFontCalibri11()
         End With
     Next
     Set ws = Nothing
-
+    
 End Sub
 
 '--------------------------------------------------------
@@ -801,9 +817,9 @@ Sub Fmt_CycleFill_X()
 
     yellow = 10092543
     grey = 15395562
-
+    
     'Selection.Interior.Pattern = xlNone
-
+    
     If Selection.Interior.Pattern = xlNone Then
         Selection.Interior.Color = grey
     ElseIf Selection.Interior.Color = grey Then
@@ -811,9 +827,9 @@ Sub Fmt_CycleFill_X()
     Else
         Selection.Interior.Pattern = xlNone
     End If
-
-
-
+    
+    
+    
 End Sub
 
 '--------------------------------------------------------
@@ -837,7 +853,7 @@ Sub Fmt_CycleFontColor_F()
         Selection.Font.Italic = False
         'Selection.Font.Bold = False
     End If
-
+    
 End Sub
 
 '--------------------------------------------------------
@@ -855,8 +871,8 @@ Sub Fmt_CycleCellStyle_T()
     YellowBack = 10092543
     BlueBack = 8011008
     Bluefont = vbBlue
-
-
+    
+    
     If Selection.Interior.Pattern = xlNone And Selection.Font.Bold = False Then
         '        Activate if necessary. Add another step for grey background and bold font. Removed because can use CycleFill_V()
         '        Selection.Interior.Color = GreyBack
@@ -874,13 +890,13 @@ Sub Fmt_CycleCellStyle_T()
         Selection.Font.Bold = False
         Selection.Font.Color = vbBlack
     End If
-
+    
     '    Set YellowBack = Nothing
     '    Set GreyBack = Nothing
     '    Set BlueBack = Nothing
     '    Set Bluefont = Nothing
     '
-
+    
 End Sub
 
 '--------------------------------------------------------
@@ -894,7 +910,7 @@ Sub Fmt_CycleBorders_B()
             .TintAndShade = 0
             .Weight = xlThin
         End With
-
+        
     ElseIf Selection.Borders(xlEdgeBottom).LineStyle = xlContinuous And Selection.Borders(xlEdgeBottom).Weight = xlThin Then
         Selection.Borders(xlEdgeBottom).LineStyle = xlNone
         With Selection.Borders(xlEdgeTop)
@@ -917,12 +933,12 @@ Sub Fmt_CycleBorders_B()
         '            .Color = RGB(220, 220, 220)
         '
         '        End With
-
+        
     Else
         Selection.Borders(xlEdgeBottom).LineStyle = xlNone
         Selection.Borders(xlEdgeTop).LineStyle = xlNone
     End If
-
+    
 End Sub
 
 '--------------------------------------------------------
@@ -949,11 +965,14 @@ Sub Fmt_AllGreyBorders_E()
     '
     '
 
-    With Selection.Borders
-        .LineStyle = xlContinuous
-        .Color = RGB(220, 220, 220)
-    End With
-
+    If Selection.Borders.LineStyle = xlContinuous Then
+        Selection.Borders.LineStyle = xlNone
+    Else
+        Selection.Borders.Color = RGB(220, 220, 220)
+        Selection.Borders.LineStyle = xlContinuous
+    End If
+    
+    
 End Sub
 
 '################################################################################################################################
@@ -969,24 +988,24 @@ Sub Fmt_AllSheetsNoGridZoom()
     Dim cursheet As Worksheet
 
     Set cursheet = ActiveSheet
-
+    
     For Each ws In Worksheets
         If ws.Visible = xlSheetVisible Then
             ws.Select
             ActiveWindow.DisplayGridlines = False
             ActiveWindow.Zoom = 80
             Application.GoTo Reference:=Range("a1"), Scroll:=True
-
+            
         End If
-
+        
     Next ws
-
+    
     cursheet.Activate
-
+    
     Set ws = Nothing
     Set curcell = Nothing
     Set cursheet = Nothing
-
+    
 End Sub
 
 '################################################################################################################################
@@ -1019,7 +1038,7 @@ Sub Tool_WrapIfError_v2()
     'PURPOSE: Add an IFERROR() Function around all the selected cells' formulas. _
     Also handles if IFERROR is already wrapped around formula.
     'SOURCE: www.TheSpreadsheetGuru.com
-
+    
     Dim rng    As Range
     Dim cell   As Range
     Dim AlreadyIFERROR As Boolean
@@ -1029,7 +1048,7 @@ Sub Tool_WrapIfError_v2()
     Dim TestStart As String
     Dim MyFormula As String
     Dim x      As String
-
+    
     'Determine if a single cell or range is selected
     If Selection.Cells.count = 1 Then
         Set rng = Selection
@@ -1040,15 +1059,15 @@ Sub Tool_WrapIfError_v2()
         Set rng = Selection.SpecialCells(xlCellTypeFormulas)
         On Error GoTo 0
     End If
-
+    
     'Get formula from First cell in Selected Range
     MyFormula = rng(1, 1).Formula
-
+    
     'Create Test Strings To Determine if IFERROR formula has already been added
     TestEnd1 = Chr(34) & Chr(34) & ")"
     TestEnd2 = ",0)"
     TestStart = Left(MyFormula, 9)
-
+    
     'Determine How we want to modify formula
     If Right(MyFormula, 3) = TestEnd1 And TestStart = "=IFERROR(" Then
         Beg_String = ""
@@ -1061,11 +1080,11 @@ Sub Tool_WrapIfError_v2()
         End_String = "," & Chr(34) & Chr(34) & ")" '=IFERROR([formula],"")
         AlreadyIFERROR = False
     End If
-
+    
     'Loop Through Each Cell in Range and modify formula
     For Each cell In rng.Cells
         x = cell.Formula
-
+        
         If RemoveIFERROR = True Then
             cell = "=" & Mid(x, 10, Len(x) - 12)
         ElseIf AlreadyIFERROR = False Then
@@ -1073,15 +1092,15 @@ Sub Tool_WrapIfError_v2()
         Else
             cell = Left(x, Len(x) - 3) & End_String
         End If
-
+        
     Next cell
-
+    
     Exit Sub
-
+    
     'Error Handler
 NoFormulas:
     MsgBox "There were no formulas found in your selection!"
-
+    
 End Sub
 
 '################################################################################################################################
@@ -1103,22 +1122,22 @@ Sub Tool_Duplicates_ListUniqueValues()
         MsgBox "Please select a range first.", vbOKOnly, "List Unique Values Macro"
         Exit Sub
     End If
-
+    
     'Store the selected range
     Set rSelection = Selection
-
+    
     'Add a new worksheet
     Set ws = Worksheets.Add
-
+    
     'Copy/paste selection to the new sheet
     rSelection.Copy
-
+    
     With ws.Range("A1")
         .PasteSpecial xlPasteValues
         .PasteSpecial xlPasteFormats
         '.PasteSpecial xlPasteValuesAndNumberFormats
     End With
-
+    
     'Load array with column count
     'For use when multiple columns are selected
     iColCount = rSelection.Columns.count
@@ -1126,21 +1145,21 @@ Sub Tool_Duplicates_ListUniqueValues()
     For i = 1 To iColCount
         vArray(i) = i
     Next i
-
+    
     'Remove duplicates
     ws.UsedRange.RemoveDuplicates Columns:=vArray(i - 1), Header:=xlGuess
-
+    
     'Remove blank cells (optional)
     On Error Resume Next
     ws.UsedRange.SpecialCells(xlCellTypeBlanks).Delete Shift:=xlShiftUp
     On Error GoTo 0
-
+    
     'Autofit column
     ws.Columns("A").AutoFit
-
+    
     'Exit CutCopyMode
     Application.CutCopyMode = False
-
+    
 End Sub
 
 
@@ -1158,25 +1177,25 @@ Sub Tool_RemoveSameSheetReferences()
     Dim x      As Long
 
     Set sht = ActiveSheet
-
+    
     fndList = Array("'" & sht.Name & "'!", sht.Name & "!")
     rplc = ""
-
+    
     'Optimize Code
     Application.ScreenUpdating = False
     Application.Calculation = xlCalculationManual
-
+    
     'Loop through each item in Array lists
     For x = LBound(fndList) To UBound(fndList)
         sht.Cells.Replace What:=fndList(x), Replacement:=rplc, _
                           LookAt:=xlPart, SearchOrder:=xlByRows, MatchCase:=False, _
                           SearchFormat:=False, ReplaceFormat:=False
     Next x
-
+    
     'Optimize Code
     Application.ScreenUpdating = True
     Application.Calculation = xlCalculationAutomatic
-
+    
 End Sub
 
 
@@ -1201,19 +1220,19 @@ Sub Fmt_AllSheetsAutoColor()
         Set constantCell = ws.Cells.SpecialCells(xlCellTypeConstants, xlNumbers)
         Set formulaCells = ws.Cells.SpecialCells(xlCellTypeFormulas, 23)
         On Error GoTo 0
-
+        
         If Not constantCell Is Nothing Then
             constantCell.Font.Color = vbBlue
         End If
-
+        
         If Not formulaCells Is Nothing Then
             For Each cell In formulaCells
                 cellFormula = cell.Formula
-
+                
                 If cellFormula Like "*.xls*]*!*" Then
                     cell.Font.Color = RGB(0, 176, 80)
                 ElseIf cellFormula Like "*!*" Then
-
+                    
                     '    And Not cellFormula Like "*\**" _
                     '    And Not cellFormula Like "*+*" _
                     '    And Not cellFormula Like "*-*" _
@@ -1232,9 +1251,9 @@ Sub Fmt_AllSheetsAutoColor()
                 End If
             Next cell
         End If
-
+        
     Next ws
-
+    
 End Sub
 
 
@@ -1248,42 +1267,42 @@ Sub Sht_SheetsList()
     Dim wsName As String
 
     x = 3
-
+    
     If Sht_Fnc_SheetExists("SheetsList") = True Then
         Worksheets("SheetsList").Range("B:B").Clear
     Else
         Sheets.Add(Before:=Worksheets(1)).Name = "SheetsList"
     End If
-
+    
     With Worksheets("sheetslist").Range("B2")
         .Value = "List of Worksheets"
         .Font.Bold = True
         .Font.Underline = True
     End With
-
+    
     For Each ws In Worksheets
         If ws.Name <> "SheetsList" Then
-
+            
             If ws.Visible = True Then
                 wsName = ws.Name
             Else
                 wsName = ws.Name & " (Hidden)"
             End If
-
+            
             Sheets("SheetsList").Hyperlinks.Add _
                                                 Anchor:=Sheets("SheetsList").Cells(x, 2), Address:="", SubAddress:= _
                                                 "'" & ws.Name & "'!A1", TextToDisplay:=wsName
             x = x + 1
-
+            
         End If
-
+        
     Next ws
-
+    
     Worksheets("SheetsList").Activate
     ActiveWindow.DisplayGridlines = False
     ActiveWindow.Zoom = 85
     Application.GoTo Reference:=Range("a1"), Scroll:=True
-
+    
 End Sub
 
 
@@ -1305,35 +1324,35 @@ Sub Sht_SheetsUnhide()
     Dim r      As Integer
     Dim checksheet As Boolean
     Dim Answer
-
+    
     Answer = MsgBox("Do you want to re-hide?", vbYesNoCancel)
     If Answer = vbCancel Then End
-
+    
     r = 1
-
+    
     If Answer = vbYes Then
         checksheet = Sht_Fnc_SheetExists("temphidden")
-
+        
         If checksheet = True Then
             Set hws = Worksheets("temphidden")
         Else
             Set hws = Worksheets.Add
             hws.Name = "temphidden"
         End If
-
+        
         hws.Cells.Clear
         hws.Visible = False
-
+        
         For Each ws In Worksheets
-
+            
             If ws.Visible = False And ws.Name <> "temphidden" Then
                 hws.Cells(r, 1).Value = ws.Name
                 r = r + 1
                 ws.Visible = xlSheetVisible
             End If
-
+            
         Next ws
-
+        
     Else
         For Each ws In Worksheets
             If ws.Visible = False And ws.Name <> "temphidden" Then
@@ -1342,13 +1361,13 @@ Sub Sht_SheetsUnhide()
             End If
         Next ws
     End If
-
+    
     If r = 1 Then
         MsgBox ("you didnt have any hidden sheets")
     Else
         MsgBox ("you had " & r - 1 & " hidden sheets")
     End If
-
+    
 End Sub
 
 
@@ -1359,9 +1378,9 @@ Sub Sht_SheetsHideBack()
     If Sht_Fnc_SheetExists("temphidden") = True And Worksheets("temphidden").Range("A1").Value <> "" Then
         For Each cell In Worksheets("temphidden").Range("A1").CurrentRegion
             sheetname = cell.Value
-
+            
             Worksheets(sheetname).Visible = False
-
+            
         Next cell
         Application.DisplayAlerts = False
         Worksheets("temphidden").Delete
@@ -1369,7 +1388,7 @@ Sub Sht_SheetsHideBack()
     Else
         MsgBox ("You have not stored the hidden sheets")
     End If
-
+    
 End Sub
 
 '################################################################################################################################
@@ -1384,9 +1403,9 @@ Function Fnc_GetNumeric(CellRef As String)
         If IsNumeric(Mid(CellRef, i, 1)) Then Result = Result & Mid(CellRef, i, 1)
     Next i
     GetNumeric = Result
-
+    
     Set StringLength = Nothing
-
+    
 End Function
 
 
@@ -1414,7 +1433,7 @@ Sub Tool_Pivot_TurnAutoFitOff()
     For Each pvt In ActiveSheet.PivotTables
         pvt.HasAutoFormat = False
     Next pvt
-
+    
 End Sub
 
 '################################################################################################################################
@@ -1455,21 +1474,21 @@ Sub Tool_SwapTwoAreas()
     Dim StoredRng As Variant
 
     Set rng = Selection
-
+    
     If rng.Areas.count <> 2 Or rng.Areas(1).Cells.count <> rng.Areas(2).Cells.count Then
         MsgBox "Please select two ranges that are the same size before running this macro"
         Exit Sub
     End If
-
+    
     'Store first selected cell area
     StoredRng = rng.Areas(1).Cells.Formula
-
+    
     'Swap first area with the second
     rng.Areas(1).Cells.Formula = rng.Areas(2).Cells.Formula
-
+    
     'Populate second area with the first
     rng.Areas(2).Cells.Formula = StoredRng
-
+    
 End Sub
 
 
@@ -1486,29 +1505,29 @@ Sub Tool_WorkBook_Backup()
 
     ' to check whether the workbook is saved at least once. if a workbook is not saved at least once (ie. book1, book2 etc) it will not have a path.
     If ActiveWorkbook.Path = "" Then
-    MsgBox "The workbook is not saved"
-    Exit Sub
+        MsgBox "The workbook is not saved"
+        Exit Sub
     End If
-
-
+    
+    
     'Step 1: Check whether the user wants to create a comment in file name
     Comment = InputBox("Insert the comment", 1)
-
+    
     ' if user has entered a comment, format it with the paranthesis
     If Comment <> "" Then
         Comment = " (" & Comment & ")"
     End If
     ' if user cancels, stop the macro without saving a file
     If StrPtr(Comment) = 0 Then Exit Sub
-
+    
     'Step 2: Create a Backup of a Workbook with Current Date in the Same folder
     ' Preapare the file name and extension
     FileNameArray = Split(ThisWorkbook.Name, ".")
     Debug.Print FileNameArray(0)
     Debug.Print FileNameArray(1)
-
+    
     If ThisWorkbook.Name = "Personal.xlsb" Then Exit Sub
-
+    
     ' Save a copy
     ThisWorkbook.SaveCopyAs _
     Filename:=ThisWorkbook.Path & "\" & _
@@ -1516,7 +1535,7 @@ Sub Tool_WorkBook_Backup()
     Format(Now(), "YYMMDD_hhmmss") & _
     Comment & "." & _
     FileNameArray(1)
-
+    
 End Sub
 
 '################################################################################################################################
@@ -1532,8 +1551,8 @@ Sub Tool_Documenting()
     Documenting_Create_sheet ("||")
     Documenting_Create_sheet ("VC")
     Documenting_Create_sheet ("BG")
-
-
+    
+    
 End Sub
 
 
@@ -1550,7 +1569,7 @@ Function Documenting_Create_sheet(WorkSheet_Name As String)
         Sheets(WorkSheet_Name).Tab.ColorIndex = shtColor
         Fnc_NoGridZoon (WorkSheet_Name)
     End If
-
+    
 End Function
 
 
@@ -1560,13 +1579,13 @@ Function Fnc_Sheet_Exists(WorkSheet_Name As String) As Boolean
     Dim ws     As Worksheet
 
     Fnc_Sheet_Exists = False
-
+    
     For Each ws In ActiveWorkbook.Worksheets
         If ws.Name = WorkSheet_Name Then
             Fnc_Sheet_Exists = True
         End If
     Next
-
+    
 End Function
 
 
@@ -1592,7 +1611,7 @@ Sub Fmt_WhiteFill_Toggle()
             End If
         End If
     Next cell
-
+    
     'Were any empty filled cells found?
     If Not GatherRange Is Nothing Then
         'Whiteout all applicable cells
@@ -1608,13 +1627,13 @@ Sub Fmt_WhiteFill_Toggle()
                 End If
             End If
         Next cell
-
+        
         'Remove White Fills
         If Not GatherRange Is Nothing Then
             GatherRange.Interior.ColorIndex = xlNone
         End If
     End If
-
+    
 End Sub
 
 
@@ -1640,35 +1659,35 @@ Sub Tool_InsertPictureComment()
         .Filters.Clear
         .Filters.Add "Images", "*.png; *.jpg"
         .Show
-
+        
         'Store Selected File Path
         On Error GoTo UserCancelled
         PicturePath = .SelectedItems(1)
         On Error GoTo 0
     End With
-
+    
     'Clear Any Existing Comment
     Application.ActiveCell.ClearComments
-
+    
     'Create a New Cell Comment
     Set CommentBox = Application.ActiveCell.AddComment
-
+    
     'Remove Any Default Comment Text
     CommentBox.Text Text:=""
-
+    
     'Insert The Image and Resize
     CommentBox.Shape.Fill.UserPicture (PicturePath)
     CommentBox.Shape.ScaleHeight 6, msoFalse, msoScaleFromTopLeft
     CommentBox.Shape.ScaleWidth 4.8, msoFalse, msoScaleFromTopLeft
-
+    
     'Ensure Comment is Hidden (Swith to TRUE if you want visible)
     CommentBox.Visible = False
-
+    
     Exit Sub
-
+    
     'ERROR HANDLERS
 UserCancelled:
-
+    
 End Sub
 
 '################################################################################################################################'
@@ -1687,9 +1706,9 @@ Sub Shape_Chart_PlotNonVisibleCells()
 
     Application.ScreenUpdating = False
     Application.EnableEvents = False
-
+    
     Set CurrentSheet = ActiveSheet
-
+    
     'Loop Through All Worksheets in Workbook
     For Each sht In ActiveWorkbook.Worksheets
         'Loop Through all Charts in Worksheet
@@ -1698,13 +1717,13 @@ Sub Shape_Chart_PlotNonVisibleCells()
             ActiveChart.PlotVisibleOnly = False
         Next cht
     Next sht
-
+    
     CurrentSheet.Activate
     Application.EnableEvents = True
-
+    
     'Completed
     MsgBox "All charts will now plot non-visible cells!", , "Macro Complete!"
-
+    
 End Sub
 
 
@@ -1721,13 +1740,13 @@ Sub Tool_ex_GetRGBColor_Font()
     Dim RGBcolor As String
 
     HEXcolor = Right("000000" & Hex(ActiveCell.Font.Color), 6)
-
+    
     RGBcolor = "RGB (" & CInt("&H" & Right(HEXcolor, 2)) & _
                ", " & CInt("&H" & Mid(HEXcolor, 3, 2)) & _
                ", " & CInt("&H" & Left(HEXcolor, 2)) & ")"
-
+    
     MsgBox RGBcolor, vbInformation, "Cell " & ActiveCell.Address(False, False) & ":  Font Color"
-
+    
 End Sub
 
 Sub Tool_ex_GetRGBColor_Fill()
@@ -1738,13 +1757,13 @@ Sub Tool_ex_GetRGBColor_Fill()
     Dim RGBcolor As String
 
     HEXcolor = Right("000000" & Hex(ActiveCell.Interior.Color), 6)
-
+    
     RGBcolor = "RGB (" & CInt("&H" & Right(HEXcolor, 2)) & _
                ", " & CInt("&H" & Mid(HEXcolor, 3, 2)) & _
                ", " & CInt("&H" & Left(HEXcolor, 2)) & ")"
-
+    
     MsgBox RGBcolor, vbInformation, "Cell " & ActiveCell.Address(False, False) & ":  Fill Color"
-
+    
 End Sub
 
 
@@ -1772,23 +1791,23 @@ Sub Shape_AlignMultipleShapes()
             "   [5] Middle " & vbCr & _
             "   [6] Centre" & vbCr & _
             " ", Type:=1, Title:="Align Shapes")
-
+    
     If align > 6 Or align < 1 Then
         MsgBox "Wrong Input.. "
     End If
-
-
-
+    
+    
+    
     'Count How Many Shapes Are Selected
     x = Windows(1).Selection.ShapeRange.count
-
+    
     'Loop Through each selected Shape (align with first selected)
     For y = 1 To x
         If Shp1 Is Nothing Then
             Set Shp1 = Windows(1).Selection.ShapeRange(y)
         Else
             Set Shp2 = Windows(1).Selection.ShapeRange(y)
-
+            
             Select Case align
                 Case 1
                     'align Left
@@ -1809,10 +1828,10 @@ Sub Shape_AlignMultipleShapes()
                     'Align Center (Vertical Center)
                     Shp2.Left = Shp1.Left + ((Shp1.Width - Shp2.Width) / 2)
             End Select
-
+            
         End If
     Next y
-
+    
 End Sub
 
 
@@ -1830,25 +1849,25 @@ Sub Tool_Saveastxtfile()
     Dim pth    As String, wbname As String
 
     pth = ActiveWorkbook.Path
-
+    
     If pth = "" Then
         pth = Environ("USERPROFILE") & "\Desktop"
     End If
-
-
+    
+    
     wbname = InputBox("Please input a name for the textfile")
-
+    
     ActiveSheet.Copy
     MsgBox "This new workbook will be saved in" & pth
-
+    
     'Save new workbook as MyWb.xls(x) into the folder where ThisWorkbook is stored
     ActiveWorkbook.SaveAs pth & "\" & wbname & "txt", FileFormat:=xlText, CreateBackup:=False
-
+    
     MsgBox "It is saved as " & ActiveWorkbook.FullName & vbLf & "Press OK to close it"
-
+    
     ' Close the saved copy
     ActiveWorkbook.Close False
-
+    
 End Sub
 
 
