@@ -116,6 +116,7 @@ End Sub
 ' /* ----------------------------- Cycle Cell Fill ---------------------------- */
 
 Sub Fmt_CycleFill_X()
+    ' Shotcut Ctrl+X
     Dim color_1, color_2 As Long
     Dim isBrandColor As Boolean
     'Dim Color3 As Long, Color4 As Long
@@ -136,10 +137,16 @@ Sub Fmt_CycleFill_X()
         Selection.Interior.Color = color_1
     ElseIf Selection.Interior.Color = color_1 Then
         Selection.Interior.Color = color_2
+        'Selection.Font.Bold = True
+        Selection.Font.Color = RGB(156, 0, 6)
     ElseIf Selection.Interior.Color = color_2 Then
         Selection.Interior.Color = color_3
+        Selection.Font.Color = RGB(32, 55, 100)
+        'Selection.Font.Bold = True
     Else
         Selection.Interior.Pattern = xlNone
+        Selection.Font.Bold = False
+        Selection.Font.Color = vbBlack
     End If
 
 
@@ -167,7 +174,7 @@ End Sub
 ' /* ---------------------------- Cycle Cell Style ---------------------------- */
 Sub Fmt_CycleCellStyle_T()
     ' Cycle through different cell styles
-
+    'Ctrl+T
     Dim cellColor1, cellColor2, fontcolor1, fontColor2, borderColor As Long
     Dim tmp    As String
 
