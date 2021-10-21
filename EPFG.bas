@@ -37,3 +37,32 @@ Sub Fnc_CountIf()
 
 
 End Sub
+
+Sub insert_Lines()
+    Dim noOfLines As Variant
+
+    noOfLines = Application.InputBox("Insert the Number of Lines to Enter" & _
+                vbCr & " ", Type:=1, Title:="Insert Rows Below")
+
+    'The Inputbox types and their input types
+    '0   A Formula
+    '1   A Number
+    '2   Text (Default)
+    '4   A logical value (True or False)
+    '8   A cell reference, as a Range object
+    '16  An error value, such as #N/A
+    '64  An array of values
+
+    If noOfLines = "" Then                        ' if user doesnt enter anything exit sub
+        Exit Sub
+    ElseIf noOfLines = "False" Then               ' if user cancels exit sub
+        Exit Sub
+    ElseIf noOfLines <= 0 Then
+        Exit Sub
+    End If
+
+    ActiveCell.EntireRow.Resize(noOfLines).Insert Shift:=xlDown
+End Sub
+
+
+
