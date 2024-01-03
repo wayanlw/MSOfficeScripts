@@ -301,6 +301,18 @@ Sub Fmt_WrapText_W()
 
 End Sub
 
+'------------------------ Adds a custom suffix ------------------------ */
+Sub Fmt_CustomSuffix_()
+    Dim suffix As String
+    Dim newFmt As String
+    suffix = Application.InputBox("Insert the name of the new Sheet" & _
+                vbCr & " ", Type:=2, Title:="Insert New Sheet")
+
+    newFmt = "_-#,##0_-""" & suffix & """"
+    Selection.NumberFormat = newFmt
+
+End Sub
+
 '------------------------ Sheets No Grid and Zoom ------------------------ */
 
 Function Fnc_NoGridZoom(ws_name As String)
