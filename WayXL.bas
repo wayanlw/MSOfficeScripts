@@ -313,18 +313,6 @@ Sub Fmt_CustomSuffix_()
 
 End Sub
 
-'------------------------ Adds a custom suffix ------------------------ */
-Sub Fmt_CustomSuffix_()
-    Dim suffix As String
-    Dim newFmt As String
-    suffix = Application.InputBox("Insert the suffix that you want" & _
-                vbCr & " ", Type:=2, Title:="Insert Suffix")
-
-    newFmt = "_-#,##0_-""" & suffix & """"
-    Selection.NumberFormat = newFmt
-
-End Sub
-
 '------------------------ Sheets No Grid and Zoom ------------------------ */
 
 Function Fnc_NoGridZoom(ws_name As String)
